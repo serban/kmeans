@@ -1,0 +1,44 @@
+% omp_main -a -o -n 4 -i Image_data/color100.txt
+
+Writing coordinates of K=4 cluster centers to file "Image_data/color100.txt.cluster_centres"
+Writing membership of N=100 data objects to file "Image_data/color100.txt.membership"
+
+Performing **** Regular Kmeans  (OpenMP) ---- using array reduction ******
+Number of threads = 8
+Input file:     Image_data/color100.txt
+numObjects    = 100
+numAttributes = 9
+numClusters   = 4
+threshold     = 0.0010
+I/O time           =     0.0035 sec
+Computation timing =     0.0017 sec
+
+-------------------------------------------------------------------------------------------------
+% seq_main -o -b -n 4 -i Image_data/color17695.bin
+
+Writing coordinates of K=4 cluster centers to file "Image_data/color17695.bin.cluster_centres"
+Writing membership of N=17695 data objects to file "Image_data/color17695.bin.membership"
+
+Performing **** Regular Kmeans (sequential version) ****
+Input file:     Image_data/color17695.bin
+numObjects    = 17695
+numAttributes = 9
+numClusters   = 4
+threshold     = 0.0010
+I/O time           =     0.0266 sec
+Computation timing =     0.3572 sec
+
+-------------------------------------------------------------------------------------------------
+% mpiexec -n 4 mpi_main -o -n 4 -b -i Image_data/texture17695.bin                                                           
+Writing coordinates of K=4 cluster centers to file "Image_data/texture17695.bin.cluster_centres"
+Writing membership of N=4424 data objects to file "Image_data/texture17695.bin.membership"
+
+Performing **** Regular Kmeans  (MPI) ----Num of processes = 4
+Input file:        Image_data/texture17695.bin
+numObjects       = 17695
+numAttributes    = 20
+numClusters      = 4
+threshold        = 0.0010
+I/O time           =     0.2371 sec
+Computation timing =     0.2794 sec
+
