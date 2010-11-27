@@ -1,3 +1,5 @@
+#   vim:set ts=8 sw=8 sts=0 noet:
+
 #  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 #    File:         Makefile                                                  */
 #    Description:  Makefile for programs running a simple k-means clustering */
@@ -12,13 +14,14 @@
 
 .KEEP_STATE:
 
-all: seq omp mpi
+all: seq omp cuda mpi
 
 DFLAGS      =
 OPTFLAGS    = -O -NDEBUG
-OPTFLAGS    = -g
+OPTFLAGS    = -g -pg
 INCFLAGS    = -I.
 CFLAGS      = $(OPTFLAGS) $(DFLAGS) $(INCFLAGS)
+NVCCFLAGS   = $(CFLAGS) --ptxas-options=-v
 LDFLAGS     = $(OPTFLAGS)
 LIBS        =
 
@@ -30,6 +33,7 @@ OMPFLAGS    = -fopenmp
 
 CC          = gcc
 MPICC       = mpicc
+NVCC        = nvcc
 
 .c.o:
 	$(CC) $(CFLAGS) -c $<
@@ -84,9 +88,25 @@ seq: seq_main
 seq_main: $(SEQ_OBJ) $(H_FILES)
 	$(CC) $(LDFLAGS) -o seq_main $(SEQ_OBJ) $(LIBS)
 
+# ------------------------------------------------------------------------------
+# CUDA Version
+
+%.o : %.cu
+	$(NVCC) $(NVCCFLAGS) -o $@ -c $<
+
+CUDA_C_SRC = cuda_main.cu cuda_io.cu cuda_wtime.cu
+CUDA_CU_SRC = cuda_kmeans.cu
+
+CUDA_C_OBJ = $(CUDA_C_SRC:%.cu=%.o)
+CUDA_CU_OBJ = $(CUDA_CU_SRC:%.cu=%.o)
+
+cuda: cuda_main
+cuda_main: $(CUDA_C_OBJ) $(CUDA_CU_OBJ)
+	$(NVCC) $(LDFLAGS) -o $@ $(CUDA_C_OBJ) $(CUDA_CU_OBJ)
+
 #---------------------------------------------------------------------
 clean:
-	rm -rf *.o omp_main seq_main mpi_main \
+	rm -rf *.o omp_main seq_main mpi_main cuda_main \
 	       core* .make.state              \
                *.cluster_centres *.membership \
                Image_data/*.cluster_centres   \
