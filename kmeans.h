@@ -16,6 +16,7 @@
 
 float** omp_kmeans(int, float**, int, int, int, float, int*);
 float** seq_kmeans(float**, int, int, int, float, int*);
+float** cuda_kmeans(float**, int, int, int, float, int*);
 
 float** file_read(int, char*, int*, int*);
 int     file_write(char*, int, int, int, float**, int*);

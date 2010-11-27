@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
     membership = (int*) malloc(numObjs * sizeof(int));
     assert(membership != NULL);
 
-    clusters = seq_kmeans(objects, numCoords, numObjs, numClusters, threshold,
+    clusters = cuda_kmeans(objects, numCoords, numObjs, numClusters, threshold,
                           membership);
 
     free(objects[0]);
