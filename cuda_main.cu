@@ -46,7 +46,6 @@ int main(int argc, char **argv) {
            int     opt;
     extern char   *optarg;
     extern int     optind;
-           int     i, j;
            int     isBinaryFile, is_output_timing;
 
            int     numClusters, numCoords, numObjs;
