@@ -146,9 +146,10 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
                    int     numObjs,      /* no. objects */
                    int     numClusters,  /* no. clusters */
                    float   threshold,    /* % objects change membership */
-                   int    *membership)   /* out: [numObjs] */
+                   int    *membership,   /* out: [numObjs] */
+                   int    *loop_iterations)
 {
-    int      i, j, index, loop=1;
+    int      i, j, index, loop=0;
     int     *newClusterSize; /* [numClusters]: no. objects assigned in each
                                 new cluster */
     float    delta;          /* % of objects change their clusters */
@@ -238,7 +239,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
         checkCuda(cudaMemcpy(&d, deviceIntermediates,
                   sizeof(int), cudaMemcpyDeviceToHost));
         delta = (float)d;
-//      msg("%2d: Delta = %d\n", loop, d)
+//      msg("%2d: delta = %d\n", loop, d)
 
 //      checkCuda(cudaMemcpy(clusters[0], deviceClusters,
 //            numClusters*numCoords*sizeof(float), cudaMemcpyDeviceToHost));
@@ -271,7 +272,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
         delta /= numObjs;
     } while (delta > threshold && loop++ < 500);
 
-    msg("Loop iterations: %d\n", loop)
+    *loop_iterations = loop + 1;
 
     checkCuda(cudaFree(deviceObjects));
     checkCuda(cudaFree(deviceClusters));
