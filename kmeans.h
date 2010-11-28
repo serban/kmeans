@@ -30,7 +30,7 @@ inline void checkLastCudaError() {
 #endif
 
 float** omp_kmeans(int, float**, int, int, int, float, int*);
-float** seq_kmeans(float**, int, int, int, float, int*);
+float** seq_kmeans(float**, int, int, int, float, int*, int*);
 float** cuda_kmeans(float**, int, int, int, float, int*);
 
 float** file_read(int, char*, int*, int*);

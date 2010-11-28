@@ -56,6 +56,7 @@ int main(int argc, char **argv) {
            float **clusters;      /* [numClusters][numCoords] cluster center */
            float   threshold;
            double  timing, io_timing, clustering_timing;
+           int     loop_iterations;
 
     /* some default values */
     _debug           = 0;
@@ -106,7 +107,7 @@ int main(int argc, char **argv) {
     assert(membership != NULL);
 
     clusters = seq_kmeans(objects, numCoords, numObjs, numClusters, threshold,
-                          membership);
+                          membership, &loop_iterations);
 
     free(objects[0]);
     free(objects);
@@ -134,6 +135,8 @@ int main(int argc, char **argv) {
         printf("numCoords     = %d\n", numCoords);
         printf("numClusters   = %d\n", numClusters);
         printf("threshold     = %.4f\n", threshold);
+
+        printf("Loop iterations    = %d\n", loop_iterations);
 
         printf("I/O time           = %10.4f sec\n", io_timing);
         printf("Computation timing = %10.4f sec\n", clustering_timing);

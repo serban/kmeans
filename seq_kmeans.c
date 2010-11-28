@@ -71,7 +71,8 @@ float** seq_kmeans(float **objects,      /* in: [numObjs][numCoords] */
                    int     numObjs,      /* no. objects */
                    int     numClusters,  /* no. clusters */
                    float   threshold,    /* % objects change membership */
-                   int    *membership)   /* out: [numObjs] */
+                   int    *membership,   /* out: [numObjs] */
+                   int    *loop_iterations)
 {
     int      i, j, index, loop=0;
     int     *newClusterSize; /* [numClusters]: no. objects assigned in each
@@ -127,6 +128,8 @@ float** seq_kmeans(float **objects,      /* in: [numObjs][numCoords] */
                 newClusters[index][j] += objects[i][j];
         }
 
+//      msg("%2d: delta = %.0f\n", loop, delta);
+
         /* average the sum and replace old cluster centers with newClusters */
         for (i=0; i<numClusters; i++) {
             for (j=0; j<numCoords; j++) {
@@ -139,6 +142,8 @@ float** seq_kmeans(float **objects,      /* in: [numObjs][numCoords] */
             
         delta /= numObjs;
     } while (delta > threshold && loop++ < 500);
+
+    *loop_iterations = loop + 1;
 
     free(newClusters[0]);
     free(newClusters);
