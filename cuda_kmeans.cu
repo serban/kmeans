@@ -56,18 +56,32 @@ __global__ static
 void find_nearest_cluster(int numCoords,
                           int numObjs,
                           int numClusters,
-                          float *objects,   //  [numObjs][numCoords]
-                          float *clusters,  //  [numObjs][numCoords]
-                          int *membership,  //  [numObjs]
+                          float *objects,           //  [numObjs][numCoords]
+                          float *deviceClusters,    //  [numClusters][numCoords]
+                          int *membership,          //  [numObjs]
                           int *intermediates)
 {
-    //  The type chosen here must be large enough to support reductions!
-    extern __shared__ unsigned char membershipChanged[];
+    extern __shared__ char sharedMemory[];
+
+    //  The type chosen for membershipChanged must be large enough to support
+    //  reductions! There are blockDim.x elements, one for each thread in the
+    //  block.
+    unsigned char *membershipChanged = (unsigned char *)sharedMemory;
+    float *clusters = (float *)(sharedMemory + blockDim.x);
+
+    membershipChanged[threadIdx.x] = 0;
+
+    //  BEWARE: We can overrun our shared memory here if there are too many
+    //  clusters or too many coordinates!
+    for (int i = threadIdx.x; i < numClusters; i += blockDim.x) {
+        for (int j = 0; j < numCoords; j++) {
+            clusters[numCoords * i + j] = deviceClusters[numCoords * i + j];
+        }
+    }
+    __syncthreads();
 
     int objectId = blockDim.x * blockIdx.x + threadIdx.x;
     float *object = objects + numCoords * objectId;
-
-    membershipChanged[threadIdx.x] = 0;
 
     if (objectId < numObjs) {
         int   index, i;
@@ -198,7 +212,8 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     const unsigned int numClusterBlocks =
         (numObjs + numThreadsPerClusterBlock - 1) / numThreadsPerClusterBlock;
     const unsigned int clusterBlockSharedDataSize =
-        numThreadsPerClusterBlock * sizeof(unsigned char);
+        numThreadsPerClusterBlock * sizeof(unsigned char) +
+        numClusters * numCoords * sizeof(float);
 
     const unsigned int numReductionThreads =
         nextPowerOfTwo(numClusterBlocks);
