@@ -38,15 +38,19 @@ static inline int nextPowerOfTwo(int n) {
 /*----< euclid_dist_2() >----------------------------------------------------*/
 /* square of Euclid distance between two multi-dimensional points            */
 __host__ __device__ inline static
-float euclid_dist_2(int    numdims,  /* no. dimensions */
-                    float *coord1,   /* [numdims] */
-                    float *coord2)   /* [numdims] */
+float euclid_dist_2(int    numCoords,
+                    int    numObjs,
+                    float *objects,     // [numCoords][numObjs]
+                    int    objectId,
+                    float *center)      // [numCoords]
 {
     int i;
     float ans=0.0;
 
-    for (i=0; i<numdims; i++)
-        ans += (coord1[i]-coord2[i]) * (coord1[i]-coord2[i]);
+    for (i = 0; i < numCoords; i++) {
+        ans += (objects[numObjs * i + objectId] - center[i]) *
+               (objects[numObjs * i + objectId] - center[i]);
+    }
 
     return(ans);
 }
@@ -81,7 +85,6 @@ void find_nearest_cluster(int numCoords,
     __syncthreads();
 
     int objectId = blockDim.x * blockIdx.x + threadIdx.x;
-    float *object = objects + numCoords * objectId;
 
     if (objectId < numObjs) {
         int   index, i;
@@ -89,10 +92,10 @@ void find_nearest_cluster(int numCoords,
 
         /* find the cluster id that has min distance to object */
         index    = 0;
-        min_dist = euclid_dist_2(numCoords, object, clusters);
+        min_dist = euclid_dist_2(numCoords, numObjs, objects, objectId, clusters);
 
         for (i=1; i<numClusters; i++) {
-            dist = euclid_dist_2(numCoords, object, clusters + numCoords * i);
+            dist = euclid_dist_2(numCoords, numObjs, objects, objectId, clusters + numCoords * i);
             /* no need square root */
             if (dist < min_dist) { /* find the min and its array index */
                 min_dist = dist;
@@ -167,6 +170,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     int     *newClusterSize; /* [numClusters]: no. objects assigned in each
                                 new cluster */
     float    delta;          /* % of objects change their clusters */
+    float  **dimObjects;
     float  **clusters;       /* out: [numClusters][numCoords] */
     float  **newClusters;    /* [numClusters][numCoords] */
 
@@ -175,6 +179,13 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     int *deviceMembership;
     int *deviceIntermediates;
 //  int *deviceNewClusterSize;
+
+    malloc2D(dimObjects, numCoords, numObjs, float)
+    for (i = 0; i < numCoords; i++) {
+        for (j = 0; j < numObjs; j++) {
+            dimObjects[i][j] = objects[j][i];
+        }
+    }
 
     /* allocate a 2D space for returning variable clusters[] (coordinates
        of cluster centers) */
@@ -216,7 +227,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     checkCuda(cudaMalloc(&deviceIntermediates, numReductionThreads*sizeof(unsigned int)));
 //  checkCuda(cudaMalloc(&deviceNewClusterSize, numClusters*sizeof(int)));
 
-    checkCuda(cudaMemcpy(deviceObjects, objects[0],
+    checkCuda(cudaMemcpy(deviceObjects, dimObjects[0],
               numObjs*numCoords*sizeof(float), cudaMemcpyHostToDevice));
     checkCuda(cudaMemcpy(deviceMembership, membership,
               numObjs*sizeof(int), cudaMemcpyHostToDevice));
@@ -285,6 +296,8 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     checkCuda(cudaFree(deviceIntermediates));
 //  checkCuda(cudaFree(deviceNewClusterSize));
 
+    free(dimObjects[0]);
+    free(dimObjects);
     free(newClusters[0]);
     free(newClusters);
     free(newClusterSize);
