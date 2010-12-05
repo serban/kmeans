@@ -1,0 +1,26 @@
+# Mac OS X
+.DS_Store
+
+# Vim
+*.swp
+
+# Emacs
+\#*#
+*~
+
+# Eclipse
+.project
+.classpath
+.settings
+
+# Ctags and Cscope
+tags
+cscope.*
+
+# Development
+*.o
+gmon.out
+
+# K-Means
+*.cluster_centres
+*.membership

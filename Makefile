@@ -107,7 +107,7 @@ cuda_main: $(CUDA_C_OBJ) $(CUDA_CU_OBJ)
 #---------------------------------------------------------------------
 clean:
 	rm -rf *.o omp_main seq_main mpi_main cuda_main \
-	       core* .make.state              \
+	       core* .make.state gmon.out     \
                *.cluster_centres *.membership \
                Image_data/*.cluster_centres   \
                Image_data/*.membership
