@@ -178,8 +178,9 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     float *deviceClusters;
     int *deviceMembership;
     int *deviceIntermediates;
-//  int *deviceNewClusterSize;
 
+    //  Copy objects given in [numObjs][numCoords] layout
+    //  to new [numCoords][numObjs] layout
     malloc2D(dimObjects, numCoords, numObjs, float);
     for (i = 0; i < numCoords; i++) {
         for (j = 0; j < numObjs; j++) {
@@ -225,20 +226,16 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     checkCuda(cudaMalloc(&deviceClusters, numClusters*numCoords*sizeof(float)));
     checkCuda(cudaMalloc(&deviceMembership, numObjs*sizeof(int)));
     checkCuda(cudaMalloc(&deviceIntermediates, numReductionThreads*sizeof(unsigned int)));
-//  checkCuda(cudaMalloc(&deviceNewClusterSize, numClusters*sizeof(int)));
 
     checkCuda(cudaMemcpy(deviceObjects, dimObjects[0],
               numObjs*numCoords*sizeof(float), cudaMemcpyHostToDevice));
     checkCuda(cudaMemcpy(deviceMembership, membership,
               numObjs*sizeof(int), cudaMemcpyHostToDevice));
-//  checkCuda(cudaMemcpy(deviceNewClusterSize, newClusterSize,
-//            numClusters*sizeof(int), cudaMemcpyHostToDevice));
 
     do {
         checkCuda(cudaMemcpy(deviceClusters, clusters[0],
                   numClusters*numCoords*sizeof(float), cudaMemcpyHostToDevice));
 
-//      msg("--- CUDA time! ---\n")
         find_nearest_cluster
             <<< numClusterBlocks, numThreadsPerClusterBlock, clusterBlockSharedDataSize >>>
             (numCoords, numObjs, numClusters,
@@ -255,19 +252,13 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
         checkCuda(cudaMemcpy(&d, deviceIntermediates,
                   sizeof(int), cudaMemcpyDeviceToHost));
         delta = (float)d;
-//      msg("%2d: delta = %d\n", loop, d)
 
-//      checkCuda(cudaMemcpy(clusters[0], deviceClusters,
-//            numClusters*numCoords*sizeof(float), cudaMemcpyDeviceToHost));
         checkCuda(cudaMemcpy(membership, deviceMembership,
                   numObjs*sizeof(int), cudaMemcpyDeviceToHost));
-//      checkCuda(cudaMemcpy(newClusterSize, deviceNewClusterSize,
-//                numClusters*sizeof(int), cudaMemcpyDeviceToHost));
 
         for (i=0; i<numObjs; i++) {
             /* find the array index of nestest cluster center */
             index = membership[i];
-//          msg("membership[%d] = %d\n", i, membership[i])
 
             /* update new cluster centers : sum of objects located within */
             newClusterSize[index]++;
@@ -294,7 +285,6 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     checkCuda(cudaFree(deviceClusters));
     checkCuda(cudaFree(deviceMembership));
     checkCuda(cudaFree(deviceIntermediates));
-//  checkCuda(cudaFree(deviceNewClusterSize));
 
     free(dimObjects[0]);
     free(dimObjects);
