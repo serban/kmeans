@@ -180,7 +180,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     int *deviceIntermediates;
 //  int *deviceNewClusterSize;
 
-    malloc2D(dimObjects, numCoords, numObjs, float)
+    malloc2D(dimObjects, numCoords, numObjs, float);
     for (i = 0; i < numCoords; i++) {
         for (j = 0; j < numObjs; j++) {
             dimObjects[i][j] = objects[j][i];
@@ -189,7 +189,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
 
     /* allocate a 2D space for returning variable clusters[] (coordinates
        of cluster centers) */
-    malloc2D(clusters, numClusters, numCoords, float)
+    malloc2D(clusters, numClusters, numCoords, float);
 
     /* pick first numClusters elements of objects[] as initial cluster centers*/
     for (i=0; i<numClusters; i++)
@@ -203,7 +203,7 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
     newClusterSize = (int*) calloc(numClusters, sizeof(int));
     assert(newClusterSize != NULL);
 
-    malloc2D(newClusters, numClusters, numCoords, float)
+    malloc2D(newClusters, numClusters, numCoords, float);
 
     //  To support reduction, numThreadsPerClusterBlock *must* be a power of
     //  two, and it *must* be no larger than the number of bits that will
