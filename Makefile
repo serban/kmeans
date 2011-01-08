@@ -110,4 +110,5 @@ clean:
 	       core* .make.state gmon.out     \
                *.cluster_centres *.membership \
                Image_data/*.cluster_centres   \
-               Image_data/*.membership
+               Image_data/*.membership        \
+               profiles/
