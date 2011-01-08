@@ -42,3 +42,18 @@ threshold        = 0.0010
 I/O time           =     0.2371 sec
 Computation timing =     0.2794 sec
 
+-------------------------------------------------------------------------------------------------
+% ./benchmark.sh
+
+...
+
+--------------------------------------------------------------------------------
+ 01:48:39 up 3 days, 10:39,  2 users,  load average: 0.78, 1.05, 0.82
+--------------------------------------------------------------------------------
+k =   2  seqTime = 0.2979s  ompTime = 0.3048s  cudaTime = 0.2009s  speedup = 1.4x
+k =   4  seqTime = 0.1042s  ompTime = 0.0773s  cudaTime = 0.0997s  speedup = 1.0x
+k =   8  seqTime = 0.4585s  ompTime = 0.3191s  cudaTime = 0.1252s  speedup = 3.6x
+k =  16  seqTime = 2.2128s  ompTime = 1.5340s  cudaTime = 0.2146s  speedup = 10.3x
+k =  32  seqTime = 3.2014s  ompTime = 2.3184s  cudaTime = 0.1936s  speedup = 16.5x
+k =  64  seqTime = 8.8400s  ompTime = 6.4526s  cudaTime = 0.2821s  speedup = 31.3x
+k = 128  seqTime = 23.9211s  ompTime = 17.5671s  cudaTime = 0.4871s  speedup = 49.1x
