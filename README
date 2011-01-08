@@ -1,3 +1,27 @@
+This software is dervied from Professor Wei-keng Liao's parallel k-means
+clustering code obtained on November 21, 2010 from
+ http://users.eecs.northwestern.edu/~wkliao/Kmeans/index.html
+(http://users.eecs.northwestern.edu/~wkliao/Kmeans/simple_kmeans.tar.gz).
+
+With his permission, I am publishing my CUDA implementation based on his code
+under the open-source MIT license. See the LICENSE file for more details.
+
+Please don't hesitate to contact me with any questions you may have.
+
+For starters, run the benchmark.sh script to see how fast this code runs.
+On an 8-core 2.4 GHz Intel Xeon E5620 machine with an NVIDIA Tesla C1060 card,
+the CUDA implementation runs almost 50 times faster than the sequential version
+on the color17695.bin data set!
+
+The original README, with some additions, is reproduced below.
+
+Cheers!
+
+Serban Giuroiu
+http://serban.org
+
+# ------------------------------------------------------------------------------
+
 Parallel K-Means Data Clustering
 
 The software package of parallel K-means data clustering contains the 
@@ -5,6 +29,7 @@ followings:
 
   * A parallel implementation using OpenMP and C
   * A parallel implementation using MPI and C
+  * A parallel implementation using CUDA and C
   * A sequential version in C
 
 To compile:
@@ -13,10 +38,14 @@ development, there is no particular features required except for OpenMP.
 Thus, the implementation should be fairly portable. Please modify 
 Makefile to change the compiler if needed.
 
+You will need the NVIDIA CUDA toolkit, which contains nvcc, to build the CUDA
+version. It works fine in concert with gcc.
+
 To run:
   * The Makefile will produce executables
      o "omp_main" for OpenMP version
      o "mpi_main" for MPI version
+     o "cuda_main" for CUDA version
      o "seq_main" for sequential version
 
   * The list of available command-line arguments can be obtained by
