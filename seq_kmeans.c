@@ -128,8 +128,6 @@ float** seq_kmeans(float **objects,      /* in: [numObjs][numCoords] */
                 newClusters[index][j] += objects[i][j];
         }
 
-//      msg("%2d: delta = %.0f\n", loop, delta);
-
         /* average the sum and replace old cluster centers with newClusters */
         for (i=0; i<numClusters; i++) {
             for (j=0; j<numCoords; j++) {

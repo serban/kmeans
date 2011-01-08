@@ -22,5 +22,6 @@ cscope.*
 gmon.out
 
 # K-Means
+profiles
 *.cluster_centres
 *.membership
