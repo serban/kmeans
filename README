@@ -11,7 +11,7 @@ Please don't hesitate to contact me with any questions you may have.
 For starters, run the benchmark.sh script to see how fast this code runs.
 On an 8-core 2.4 GHz Intel Xeon E5620 machine with an NVIDIA Tesla C1060 card,
 the CUDA implementation runs almost 50 times faster than the sequential version
-on the color17695.bin data set!
+on the color17695.bin data set (for k = 128)!
 
 The original README, with some additions, is reproduced below.
 
