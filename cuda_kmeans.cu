@@ -94,20 +94,26 @@ void find_nearest_cluster(int numCoords,
 
     //  The type chosen for membershipChanged must be large enough to support
     //  reductions! There are blockDim.x elements, one for each thread in the
-    //  block.
+    //  block. See numThreadsPerClusterBlock in cuda_kmeans().
     unsigned char *membershipChanged = (unsigned char *)sharedMemory;
+#if BLOCK_SHARED_MEM_OPTIMIZATION
     float *clusters = (float *)(sharedMemory + blockDim.x);
+#endif
 
     membershipChanged[threadIdx.x] = 0;
 
+#if BLOCK_SHARED_MEM_OPTIMIZATION
     //  BEWARE: We can overrun our shared memory here if there are too many
-    //  clusters or too many coordinates!
+    //  clusters or too many coordinates! For reference, a Tesla C1060 has 16
+    //  KiB of shared memory per block, and a GeForce GTX 480 has 48 KiB of
+    //  shared memory per block.
     for (int i = threadIdx.x; i < numClusters; i += blockDim.x) {
         for (int j = 0; j < numCoords; j++) {
             clusters[numClusters * j + i] = deviceClusters[numClusters * j + i];
         }
     }
     __syncthreads();
+#endif
 
     int objectId = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -118,11 +124,19 @@ void find_nearest_cluster(int numCoords,
         /* find the cluster id that has min distance to object */
         index    = 0;
         min_dist = euclid_dist_2(numCoords, numObjs, numClusters,
+#if BLOCK_SHARED_MEM_OPTIMIZATION
                                  objects, clusters, objectId, 0);
+#else
+                                 objects, deviceClusters, objectId, 0);
+#endif
 
         for (i=1; i<numClusters; i++) {
             dist = euclid_dist_2(numCoords, numObjs, numClusters,
+#if BLOCK_SHARED_MEM_OPTIMIZATION
                                  objects, clusters, objectId, i);
+#else
+                                 objects, deviceClusters, objectId, i);
+#endif
             /* no need square root */
             if (dist < min_dist) { /* find the min and its array index */
                 min_dist = dist;
