@@ -98,6 +98,8 @@ void find_nearest_cluster(int numCoords,
     unsigned char *membershipChanged = (unsigned char *)sharedMemory;
 #if BLOCK_SHARED_MEM_OPTIMIZATION
     float *clusters = (float *)(sharedMemory + blockDim.x);
+#else
+    float *clusters = deviceClusters;
 #endif
 
     membershipChanged[threadIdx.x] = 0;
@@ -124,19 +126,11 @@ void find_nearest_cluster(int numCoords,
         /* find the cluster id that has min distance to object */
         index    = 0;
         min_dist = euclid_dist_2(numCoords, numObjs, numClusters,
-#if BLOCK_SHARED_MEM_OPTIMIZATION
                                  objects, clusters, objectId, 0);
-#else
-                                 objects, deviceClusters, objectId, 0);
-#endif
 
         for (i=1; i<numClusters; i++) {
             dist = euclid_dist_2(numCoords, numObjs, numClusters,
-#if BLOCK_SHARED_MEM_OPTIMIZATION
                                  objects, clusters, objectId, i);
-#else
-                                 objects, deviceClusters, objectId, i);
-#endif
             /* no need square root */
             if (dist < min_dist) { /* find the min and its array index */
                 min_dist = dist;

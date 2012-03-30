@@ -111,10 +111,6 @@ int main(int argc, char **argv) {
 
     if (filename == 0 || numClusters <= 1) usage(argv[0], threshold);
 
-#if ! BLOCK_SHARED_MEM_OPTIMIZATION
-    msg("The find_nearest_cluster() block shared memory optimization is disabled\n");
-#endif
-
     if (is_output_timing) io_timing = wtime();
 
     /* read data points from file ------------------------------------------*/
