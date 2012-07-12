@@ -306,12 +306,12 @@ float** cuda_kmeans(float **objects,      /* in: [numObjs][numCoords] */
             (numCoords, numObjs, numClusters,
              deviceObjects, deviceClusters, deviceMembership, deviceIntermediates);
 
-        cudaThreadSynchronize(); checkLastCudaError();
+        cudaDeviceSynchronize(); checkLastCudaError();
 
         compute_delta <<< 1, numReductionThreads, reductionBlockSharedDataSize >>>
             (deviceIntermediates, numClusterBlocks, numReductionThreads);
 
-        cudaThreadSynchronize(); checkLastCudaError();
+        cudaDeviceSynchronize(); checkLastCudaError();
 
         int d;
         checkCuda(cudaMemcpy(&d, deviceIntermediates,
